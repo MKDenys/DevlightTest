@@ -1,3 +1,8 @@
 <resources>
-    <string name="app_name">DevlightTest</string>
+    <string name="app_name">Marvel Characters</string>
+    <string name="search_title">Search</string>
+    <string name="comics">comics</string>
+    <string name="series">series</string>
+    <string name="empty_message">Collection is empty</string>
+    <string name="empty_title">NOTHING</string>
 </resources>
