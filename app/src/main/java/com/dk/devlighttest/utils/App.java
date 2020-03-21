@@ -3,6 +3,9 @@ package com.dk.devlighttest.utils;
 import android.app.Application;
 import android.util.Log;
 
+import androidx.room.Room;
+
+import com.dk.devlighttest.database.AppDatabase;
 import com.dk.devlighttest.network.MarvelApi;
 
 import java.io.IOException;
@@ -26,10 +29,17 @@ public class App extends Application {
     private static final String PUBLIC_KEY = "a7a92574023f1ea0d50bd5f5373b21ad";
     private static final String PRIVATE_KEY = "41fb51057f720247da4413d19897aea1c54b9c65";
     private static MarvelApi marvelApi;
+    private AppDatabase appDatabase;
+
+    public static App instance;
+    public static App getInstance() {
+        return instance;
+    }
+
     @Override
     public void onCreate() {
         super.onCreate();
-
+        instance = this;
         OkHttpClient.Builder builder = new OkHttpClient.Builder().addInterceptor(authInterceptor);
         OkHttpClient client = builder.build();
 
@@ -39,9 +49,16 @@ public class App extends Application {
                 .client(client)
                 .build();
         marvelApi = retrofit.create(MarvelApi.class);
+
+        appDatabase = Room.databaseBuilder(this, AppDatabase.class, "database")
+                .build();
     }
 
-    public static MarvelApi getMarvelApi(){
+    public AppDatabase getAppDatabase() {
+        return appDatabase;
+    }
+
+    public MarvelApi getMarvelApi(){
         return marvelApi;
     }
 
@@ -68,7 +85,8 @@ public class App extends Application {
 
     private static String getMD5Hash(String stringToHash){
         byte[] bytes = stringToHash.getBytes(StandardCharsets.UTF_8);
-        try { MessageDigest md = MessageDigest.getInstance(HASHING_ALGORITHM);
+        try {
+            MessageDigest md = MessageDigest.getInstance(HASHING_ALGORITHM);
             bytes = md.digest(bytes);
             StringBuilder sb = new StringBuilder(2 * bytes.length);
             for(byte b : bytes){

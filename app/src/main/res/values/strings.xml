@@ -5,4 +5,9 @@
     <string name="series">series</string>
     <string name="empty_message">Collection is empty</string>
     <string name="empty_title">NOTHING</string>
+    <string name="title_activity_scrolling">Character Detail</string>
+    <string name="action_settings">Settings</string>
+    <string name="empty_description">Description is empty...</string>
+    <string name="description">Description</string>
+
 </resources>

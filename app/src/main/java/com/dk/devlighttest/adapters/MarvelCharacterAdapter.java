@@ -1,11 +1,5 @@
 package com.dk.devlighttest.adapters;
 
-import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.BitmapShader;
-import android.graphics.Canvas;
-import android.graphics.Paint;
-import android.graphics.Shader;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,10 +10,9 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.dk.devlighttest.model.MarvelCharacter;
+import com.dk.devlighttest.utils.ImageLazyLoader;
 import com.dk.devlighttest.R;
-import com.dk.devlighttest.model.json.objects.MarvelCharacter;
-import com.squareup.picasso.Picasso;
-import com.squareup.picasso.Transformation;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,14 +20,18 @@ import java.util.List;
 public class MarvelCharacterAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
     private List<MarvelCharacter> characters;
     private List<MarvelCharacter> copyCharactersListForSearch;
-    private Context context;
+    private ImageLazyLoader imageLazyLoader;
+    private OnItemClickListener onClickListener;
     private final static int VIEW_ITEMS = 0;
     private final static int VIEW_PROGRESS_BAR = 1;
     private boolean isSearch = false;
+    private boolean listEnded = false;
 
-    public MarvelCharacterAdapter(Context context, List<MarvelCharacter> characters) {
+    public MarvelCharacterAdapter(ImageLazyLoader imageLazyLoader, List<MarvelCharacter> characters,
+                                  OnItemClickListener onClickListener) {
         this.characters = characters;
-        this.context = context;
+        this.imageLazyLoader = imageLazyLoader;
+        this.onClickListener = onClickListener;
     }
 
     @NonNull
@@ -43,7 +40,7 @@ public class MarvelCharacterAdapter extends RecyclerView.Adapter<RecyclerView.Vi
         RecyclerView.ViewHolder viewHolder = null;
         if(viewType == VIEW_ITEMS) {
             View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.characters_list_item, parent, false);
-            viewHolder = new ItemViewHolder(v);
+            viewHolder = new ItemViewHolder(v, onClickListener);
         } else if (viewType == VIEW_PROGRESS_BAR){
             View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.progress_bar, parent, false);
             viewHolder = new ProgressViewHolder(v);
@@ -61,11 +58,9 @@ public class MarvelCharacterAdapter extends RecyclerView.Adapter<RecyclerView.Vi
             final MarvelCharacter item = characters.get(position);
 
             itemViewHolder.name.setText(item.getName());
-            itemViewHolder.comicsCount.setText(String.valueOf(item.getComics().getCount()));
-            itemViewHolder.seriesCount.setText(String.valueOf(item.getSeries().getCount()));
-            Picasso.with(context).load(item.getImage().getUrlSmall())
-                    .transform(new CircleTransform())
-                    .into(itemViewHolder.image);
+            itemViewHolder.comicsCount.setText(String.valueOf(item.getComicsCount()));
+            itemViewHolder.seriesCount.setText(String.valueOf(item.getSeriesCount()));
+            imageLazyLoader.loadCircleImageFromUrl(item.getImage().getUrlSmall(), itemViewHolder.image);
         }
     }
 
@@ -76,17 +71,25 @@ public class MarvelCharacterAdapter extends RecyclerView.Adapter<RecyclerView.Vi
 
     @Override
     public int getItemViewType(int position) {
-        if (isSearch){
+        if (isSearch || listEnded){
             return VIEW_ITEMS;
-        } else if (characters.size() > 0) {
-            if (position == characters.size() - 1) {
-                return VIEW_PROGRESS_BAR;
-            } else {
-                return VIEW_ITEMS;
-            }
-        } else {
+        } else if (position == characters.size() - 1) {
             return VIEW_PROGRESS_BAR;
+        } else {
+            return VIEW_ITEMS;
         }
+    }
+
+    public void hideBottomProgressBar() {
+        this.listEnded = true;
+    }
+
+    public void showBottomProgressBar() {
+        this.listEnded = false;
+    }
+
+    public MarvelCharacter getCharacterByPosition(int position){
+        return characters.get(position);
     }
 
     public boolean isSearch() {
@@ -124,6 +127,7 @@ public class MarvelCharacterAdapter extends RecyclerView.Adapter<RecyclerView.Vi
         notifyDataSetChanged();
     }
 
+
     public void filter(String text) {
         List<MarvelCharacter> tempList = new ArrayList<>();
         if(text.isEmpty()){
@@ -139,64 +143,39 @@ public class MarvelCharacterAdapter extends RecyclerView.Adapter<RecyclerView.Vi
         setFilteredList(tempList);
     }
 
-    public static class ItemViewHolder extends RecyclerView.ViewHolder{
-
+    private static class ItemViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         private TextView name;
         private TextView seriesCount;
         private TextView comicsCount;
         private ImageView image;
+        private OnItemClickListener onItemClickListener;
 
-        public ItemViewHolder(View itemView) {
+        private ItemViewHolder(View itemView, OnItemClickListener onItemClickListener) {
             super(itemView);
             name = itemView.findViewById(R.id.textView_characterName);
             seriesCount = itemView.findViewById(R.id.textView_seriesCount);
             comicsCount = itemView.findViewById(R.id.textView_comicsCount);
-            image = itemView.findViewById(R.id.imageView_characterImage);
+            image = itemView.findViewById(R.id.imageView_characterSmallImage);
+            this.onItemClickListener = onItemClickListener;
+            itemView.setOnClickListener(this);
         }
 
+        @Override
+        public void onClick(View v) {
+            this.onItemClickListener.onItemClickListener(getAdapterPosition());
+        }
     }
 
-    public static class ProgressViewHolder extends RecyclerView.ViewHolder {
+    private static class ProgressViewHolder extends RecyclerView.ViewHolder {
         private ProgressBar progressBar;
 
-        public ProgressViewHolder(View view) {
+        private ProgressViewHolder(View view) {
             super(view);
             this.progressBar = view.findViewById(R.id.progress);
         }
     }
 
-    public static class CircleTransform implements Transformation {
-        @Override
-        public Bitmap transform(Bitmap source) {
-            int size = Math.min(source.getWidth(), source.getHeight());
-
-            int x = (source.getWidth() - size) / 2;
-            int y = (source.getHeight() - size) / 2;
-
-            Bitmap squaredBitmap = Bitmap.createBitmap(source, x, y, size, size);
-            if (squaredBitmap != source) {
-                source.recycle();
-            }
-
-            Bitmap bitmap = Bitmap.createBitmap(size, size, source.getConfig());
-
-            Canvas canvas = new Canvas(bitmap);
-            Paint paint = new Paint();
-            BitmapShader shader = new BitmapShader(squaredBitmap,
-                    Shader.TileMode.CLAMP, Shader.TileMode.CLAMP);
-            paint.setShader(shader);
-            paint.setAntiAlias(true);
-
-            float r = size / 2f;
-            canvas.drawCircle(r, r, r, paint);
-
-            squaredBitmap.recycle();
-            return bitmap;
-        }
-
-        @Override
-        public String key() {
-            return "circle";
-        }
+    public interface OnItemClickListener{
+        void onItemClickListener(int position);
     }
 }

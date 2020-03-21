@@ -10,6 +10,11 @@ public abstract class MarvelCollection<T> {
     @SerializedName("items")
     private List<T> items;
 
+    public MarvelCollection(int count, List<T> list) {
+        this.count = count;
+        items = list;
+    }
+
     public List<T> getItems() {
         return items;
     }
