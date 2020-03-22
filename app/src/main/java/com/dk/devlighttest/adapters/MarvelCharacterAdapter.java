@@ -10,9 +10,9 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.dk.devlighttest.R;
 import com.dk.devlighttest.model.MarvelCharacter;
 import com.dk.devlighttest.utils.ImageLazyLoader;
-import com.dk.devlighttest.R;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -119,11 +119,13 @@ public class MarvelCharacterAdapter extends RecyclerView.Adapter<RecyclerView.Vi
 
     public void addListToBottom(List<MarvelCharacter> marvelCharacters){
         characters.addAll(marvelCharacters);
+        copyCharactersListForSearch.addAll(marvelCharacters);
         notifyDataSetChanged();
     }
 
     public void addListToTop(List<MarvelCharacter> marvelCharacters){
         characters.addAll(0, marvelCharacters);
+        copyCharactersListForSearch.addAll(0, marvelCharacters);
         notifyDataSetChanged();
     }
 

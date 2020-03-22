@@ -22,6 +22,7 @@ import com.dk.devlighttest.adapters.MarvelExpandableListAdapter;
 import com.dk.devlighttest.fragments.WebFragment;
 import com.dk.devlighttest.model.CharacterDetailViewModel;
 import com.dk.devlighttest.model.MarvelCharacter;
+import com.dk.devlighttest.utils.App;
 import com.dk.devlighttest.utils.ImageLazyLoader;
 import com.dk.devlighttest.utils.PicassoImageLazyLoader;
 import com.google.android.material.appbar.CollapsingToolbarLayout;
@@ -31,8 +32,8 @@ import java.util.List;
 import java.util.Objects;
 
 public class CharacterDetailsActivity extends AppCompatActivity {
-    public static final String ID_KEY = "id";
-    public static final String NAME_KEY = "name";
+    private static final String ID_KEY = "id";
+    private static final String NAME_KEY = "name";
     private ImageView imageView;
     private CollapsingToolbarLayout collapsingToolbarLayout;
     private ExpandableListView expandableListView;
@@ -86,7 +87,7 @@ public class CharacterDetailsActivity extends AppCompatActivity {
 
     private void setupViewModel(){
         CharacterDetailViewModel viewModel = new ViewModelProvider(this).get(CharacterDetailViewModel.class);
-        viewModel.init();
+        viewModel.init(App.getInstance().isInternetAvailable());
         viewModel.loadCharacterById(characterId);
         viewModel.getCharacterRepository().observe(this, observer);
     }

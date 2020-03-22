@@ -6,6 +6,7 @@ import android.graphics.BitmapShader;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Shader;
+import android.util.Log;
 import android.widget.ImageView;
 
 import com.squareup.picasso.Callback;
@@ -13,6 +14,8 @@ import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Transformation;
 
 public class PicassoImageLazyLoader implements ImageLazyLoader {
+    private static final String IMAGE_SAVED_MESSAGE = "image saved";
+    private static final String IMAGE_NOT_SAVED_MESSAGE = "image not saved";
     private final Context context;
 
     public PicassoImageLazyLoader(Context context){
@@ -27,6 +30,21 @@ public class PicassoImageLazyLoader implements ImageLazyLoader {
     @Override
     public void loadImageFromUrlWithCallback(String url, ImageView target, Callback callback) {
         Picasso.with(context).load(url).into(target, callback);
+    }
+
+    @Override
+    public void cachingImage(final String url) {
+        Picasso.with(context).load(url).fetch(new Callback() {
+            @Override
+            public void onSuccess() {
+                Log.println( Log.INFO, IMAGE_SAVED_MESSAGE, url);
+            }
+
+            @Override
+            public void onError() {
+                Log.println( Log.INFO, IMAGE_NOT_SAVED_MESSAGE, url);
+            }
+        });
     }
 
     private static class CircleTransform implements Transformation {

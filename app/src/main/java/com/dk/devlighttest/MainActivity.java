@@ -5,8 +5,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Color;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -30,6 +28,7 @@ import com.dk.devlighttest.model.ChangeType;
 import com.dk.devlighttest.model.MainActivityViewModel;
 import com.dk.devlighttest.model.MarvelCharacter;
 import com.dk.devlighttest.services.SaveToDBService;
+import com.dk.devlighttest.utils.App;
 import com.dk.devlighttest.utils.EndlessScrollEventListener;
 import com.dk.devlighttest.utils.ImageLazyLoader;
 import com.dk.devlighttest.utils.InternetStatusChangeReceiver;
@@ -40,7 +39,7 @@ import java.util.List;
 import java.util.Objects;
 
 public class MainActivity extends AppCompatActivity {
-    private static final int START_LOAD_LIMIT = 20;
+    private static final int START_LOAD_LIMIT = 15;
     private static final int START_LOAD_OFFSET = 500;
     private static final int LOAD_LIMIT = 10;
     private static final String INTERNET_IS_NOT_AVAILABLE_MESSAGE = "Internet connection is not available. Characters will be display characters from local database";
@@ -69,7 +68,7 @@ public class MainActivity extends AppCompatActivity {
         setupRecyclerView();
         setupSwipeRefresh();
         setupViewModel();
-        if (!isInternetAvailable()){
+        if (!App.getInstance().isInternetAvailable()){
             turnOffEndless();
         }
     }
@@ -105,17 +104,9 @@ public class MainActivity extends AppCompatActivity {
         recyclerView.addOnScrollListener(scrollListener);
     }
 
-    private boolean isInternetAvailable(){
-        ConnectivityManager cm =
-                (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-        assert cm != null;
-        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
-        return activeNetwork != null && activeNetwork.isConnectedOrConnecting();
-    }
-
     private void setupViewModel(){
         mainActivityViewModel = new ViewModelProvider(this).get(MainActivityViewModel.class);
-        mainActivityViewModel.init(isInternetAvailable());
+        mainActivityViewModel.init(App.getInstance().isInternetAvailable());
         mainActivityViewModel.setChangeType(ChangeType.STANDARD_LOAD);
         mainActivityViewModel.loadCharacters(START_LOAD_LIMIT, START_LOAD_OFFSET);
         mainActivityViewModel.getCharactersRepository().observe(this, observer);
@@ -194,6 +185,7 @@ public class MainActivity extends AppCompatActivity {
             public boolean onMenuItemActionCollapse(MenuItem item) {
                 adapter.setSearch(false);
                 recyclerView.addOnScrollListener(scrollListener);
+                resetEndlessScroll();
                 hideSoftKeyboard();
                 return true;
             }

@@ -7,14 +7,16 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.WebView;
+import android.webkit.WebViewClient;
 import android.widget.ImageButton;
-import android.widget.RelativeLayout;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.dk.devlighttest.R;
-import com.dk.devlighttest.network.MyWebViewClient;
+import com.dk.devlighttest.network.MyWebChromeClient;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -27,7 +29,8 @@ public class WebFragment extends Fragment {
     private String url;
     private WebView webView;
     private ImageButton closeButton;
-    private RelativeLayout progressBarContainer;
+    private LinearLayout progressBarContainer;
+    private TextView currentLoadProgress;
 
     /**
      * Use this factory method to create a new instance of
@@ -62,36 +65,24 @@ public class WebFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         initViewElements(view);
-        setListeners();
         setupWebView();
     }
 
     private void initViewElements(View view){
-        closeButton = view.findViewById(R.id.button_close);
         progressBarContainer = view.findViewById(R.id.webView_progress_bar);
         webView = view.findViewById(R.id.webView);
-    }
-
-    private void setListeners(){
-        closeButton.setOnClickListener(onClickListener);
+        currentLoadProgress = view.findViewById(R.id.textView_loading_progress);
     }
 
     @SuppressLint("SetJavaScriptEnabled")
     private void setupWebView(){
         webView.getSettings().setJavaScriptEnabled(true);
-        webView.setWebViewClient(new MyWebViewClient(progressBarContainer));
+        webView.setWebViewClient(new WebViewClient());
+        webView.setWebChromeClient(new MyWebChromeClient(progressBarContainer, currentLoadProgress));
         loadUrl(url);
     }
 
     public void loadUrl(String url){
         webView.loadUrl(url);
     }
-
-
-    private View.OnClickListener onClickListener = new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
-            getActivity().getFragmentManager().beginTransaction().detach(WebFragment.this).commit();
-        }
-    };
 }

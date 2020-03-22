@@ -1,6 +1,9 @@
 package com.dk.devlighttest.utils;
 
 import android.app.Application;
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.util.Log;
 
 import androidx.room.Room;
@@ -97,5 +100,13 @@ public class App extends Application {
             Log.e(TAG, "getMD5Hash: ", ex);
             return "";
         }
+    }
+
+    public boolean isInternetAvailable(){
+        ConnectivityManager cm =
+                (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        assert cm != null;
+        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+        return activeNetwork != null && activeNetwork.isConnectedOrConnecting();
     }
 }

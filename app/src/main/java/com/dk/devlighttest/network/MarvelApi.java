@@ -1,8 +1,8 @@
 package com.dk.devlighttest.network;
 
+import com.dk.devlighttest.model.json.arrays.MarvelResponseResult;
 import com.dk.devlighttest.model.json.objects.MarvelCharacterJson;
 import com.dk.devlighttest.model.json.objects.MarvelResponseData;
-import com.dk.devlighttest.model.json.arrays.MarvelResponseResult;
 
 import retrofit2.Call;
 import retrofit2.http.GET;
@@ -22,5 +22,5 @@ public interface MarvelApi {
 
     @GET("/v1/public/characters")
     Call<MarvelResponseData<MarvelResponseResult<MarvelCharacterJson>>>
-    getCharacterByName(@Query("name") String name);
+    getCharacterByName(@Query("nameStartsWith") String name);
 }

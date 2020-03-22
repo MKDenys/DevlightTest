@@ -5,18 +5,26 @@
     android:layout_height="match_parent"
     tools:context=".fragments.WebFragment">
 
-  <RelativeLayout
+  <LinearLayout
       android:id="@+id/webView_progress_bar"
       android:layout_width="fill_parent"
       android:layout_height="wrap_content"
       android:gravity="center"
+      android:orientation="vertical"
       android:visibility="invisible">
 
     <ProgressBar
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
 
-  </RelativeLayout>
+    <TextView
+        android:id="@+id/textView_loading_progress"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        android:text="" />
+
+  </LinearLayout>
 
   <WebView
       android:id="@+id/webView"
@@ -24,14 +32,5 @@
       android:layout_height="wrap_content">
 
   </WebView>
-
-  <ImageButton
-      android:id="@+id/button_close"
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
-      android:layout_gravity="right"
-      android:layout_margin="16dp"
-      android:background="@color/semi_transparent"
-      android:src="@android:drawable/ic_menu_close_clear_cancel" />
 
 </FrameLayout>

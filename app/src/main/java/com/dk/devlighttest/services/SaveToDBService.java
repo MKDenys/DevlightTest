@@ -9,6 +9,8 @@ import androidx.annotation.Nullable;
 
 import com.dk.devlighttest.database.DBMarvelCharacterProvider;
 import com.dk.devlighttest.model.MarvelCharacter;
+import com.dk.devlighttest.utils.ImageLazyLoader;
+import com.dk.devlighttest.utils.PicassoImageLazyLoader;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,8 +37,14 @@ public class SaveToDBService extends IntentService {
                 assert characters != null;
                 for (int i = 0; i < characters.size(); i++){
                     provider.insertTask(characters.get(i));
+                    cachingLargeImage(characters.get(i).getImage().getUrlLarge());
                 }
             }
         }
+    }
+
+    private void cachingLargeImage(String imageUrl){
+        ImageLazyLoader imageLazyLoader = new PicassoImageLazyLoader(this);
+        imageLazyLoader.cachingImage(imageUrl);
     }
 }
