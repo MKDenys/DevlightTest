@@ -11,7 +11,6 @@ import com.google.gson.annotations.SerializedName;
 
 import java.util.Objects;
 
-
 public abstract class MarvelResource implements Parcelable {
 
     @PrimaryKey

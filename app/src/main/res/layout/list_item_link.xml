@@ -5,11 +5,12 @@
     android:orientation="vertical">
 
     <TextView
-        android:id="@+id/expandableListView_item"
+        android:id="@+id/expandableListView_item_link"
         android:layout_width="match_parent"
         android:layout_height="35dp"
         android:paddingLeft="?android:attr/expandableListPreferredChildPaddingLeft"
         android:paddingTop="5dp"
         android:paddingBottom="5dp"
-        android:textSize="18sp"/>
+        android:textSize="18sp"
+        android:foreground="?android:attr/selectableItemBackground"/>
 </LinearLayout>

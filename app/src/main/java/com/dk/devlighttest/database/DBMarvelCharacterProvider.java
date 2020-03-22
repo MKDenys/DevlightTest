@@ -1,6 +1,5 @@
 package com.dk.devlighttest.database;
 
-
 import androidx.lifecycle.MutableLiveData;
 
 import com.dk.devlighttest.model.MarvelCharacter;

@@ -19,6 +19,7 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.dk.devlighttest.adapters.MarvelExpandableListAdapter;
+import com.dk.devlighttest.fragments.WebFragment;
 import com.dk.devlighttest.model.CharacterDetailViewModel;
 import com.dk.devlighttest.model.MarvelCharacter;
 import com.dk.devlighttest.utils.ImageLazyLoader;
@@ -38,6 +39,7 @@ public class CharacterDetailsActivity extends AppCompatActivity {
     private TextView descriptionTextView;
     private long characterId;
     private String characterName;
+    private WebFragment webFragment;
 
     public static Intent getIntentForCharacterInfo(Context context, long characterId, String characterName){
         Intent intent = new Intent(context, CharacterDetailsActivity.class);
@@ -126,7 +128,7 @@ public class CharacterDetailsActivity extends AppCompatActivity {
         int height = totalHeight + (listView.getDividerHeight() * (listAdapter.getGroupCount() - 1));
         if (height < 10)
             height = 200;
-        params.height = height;
+        params.height = height + 200;
         listView.setLayoutParams(params);
         listView.requestLayout();
     }
@@ -164,6 +166,18 @@ public class CharacterDetailsActivity extends AppCompatActivity {
         }
     };
 
+    private MarvelExpandableListAdapter.OnItemClickListener onItemClickListener = new MarvelExpandableListAdapter.OnItemClickListener() {
+        @Override
+        public void onItemClickListener(String url) {
+            if (webFragment == null || webFragment.isDetached()){
+                webFragment = WebFragment.newInstance(url);
+                getFragmentManager().beginTransaction().add(R.id.fragment_container_view_tag,  webFragment).commit();
+            } else {
+                webFragment.loadUrl(url);
+            }
+        }
+    };
+
     private Observer<List<MarvelCharacter>> observer = new Observer<List<MarvelCharacter>>() {
         @Override
         public void onChanged(List<MarvelCharacter> marvelCharacters) {
@@ -173,7 +187,8 @@ public class CharacterDetailsActivity extends AppCompatActivity {
                 imageLazyLoader.loadImageFromUrlWithCallback(marvelCharacter.getImage().getUrlLarge(),
                         imageView, imageLoadCallback);
                 descriptionTextView.setText(marvelCharacter.getDescription());
-                MarvelExpandableListAdapter adapter = new MarvelExpandableListAdapter(CharacterDetailsActivity.this, marvelCharacter);
+                MarvelExpandableListAdapter adapter = new MarvelExpandableListAdapter(
+                        CharacterDetailsActivity.this, marvelCharacter, onItemClickListener);
                 expandableListView.setAdapter(adapter);
             }
         }

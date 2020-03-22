@@ -12,6 +12,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.SearchView;
 import android.widget.Toast;
 
@@ -166,6 +167,15 @@ public class MainActivity extends AppCompatActivity {
         adapter.showBottomProgressBar();
     }
 
+    private void hideSoftKeyboard(){
+        View view = getCurrentFocus();
+        if (view != null) {
+            InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+            assert inputMethodManager != null;
+            inputMethodManager.hideSoftInputFromWindow(view.getWindowToken(), 0);
+        }
+    }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
@@ -184,6 +194,7 @@ public class MainActivity extends AppCompatActivity {
             public boolean onMenuItemActionCollapse(MenuItem item) {
                 adapter.setSearch(false);
                 recyclerView.addOnScrollListener(scrollListener);
+                hideSoftKeyboard();
                 return true;
             }
         });

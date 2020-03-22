@@ -3,7 +3,6 @@ package com.dk.devlighttest.adapters;
 import android.content.Context;
 import android.graphics.Color;
 import android.text.Html;
-import android.text.method.LinkMovementMethod;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,18 +22,19 @@ import java.util.Objects;
 
 public class MarvelExpandableListAdapter extends BaseExpandableListAdapter {
     private static final String SEPARATOR = "##//##";
-    private static final String HTTP = "http";
     private static final String LINK_TEMPLATE = "<a href='%s'> %s </a>";
-    private static final String COMICS_TITLE = "Comics";
-    private static final String SERIES_TITLE = "Series";
-    private static final String LINKS_TITLE = "Links";
+    public static final String COMICS_TITLE = "Comics";
+    public static final String SERIES_TITLE = "Series";
+    public static final String LINKS_TITLE = "Links";
     private Context context;
     private List<String> groupTitlesList = new ArrayList<>();
     private HashMap<String, List<String>> childTitlesMap = new HashMap<>();
+    private OnItemClickListener onClickListener;
 
 
-    public MarvelExpandableListAdapter(Context context, MarvelCharacter character) {
+    public MarvelExpandableListAdapter(Context context, MarvelCharacter character, OnItemClickListener onItemClickListener) {
         this.context = context;
+        this.onClickListener = onItemClickListener;
         groupTitlesList.add(COMICS_TITLE);
         groupTitlesList.add(SERIES_TITLE);
         groupTitlesList.add(LINKS_TITLE);
@@ -87,41 +87,43 @@ public class MarvelExpandableListAdapter extends BaseExpandableListAdapter {
 
     @Override
     public boolean hasStableIds() {
-        return false;
+        return true;
     }
 
     @Override
     public View getGroupView(int groupPosition, boolean isExpanded, View convertView, ViewGroup parent) {
         String headerTitle = getGroup(groupPosition);
-        if (convertView == null) {
-            LayoutInflater layoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            assert layoutInflater != null;
-            convertView = layoutInflater.inflate(R.layout.list_group, null);
-        }
+        LayoutInflater layoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        assert layoutInflater != null;
+        convertView = layoutInflater.inflate(R.layout.list_group, null);
         TextView groupTextView = convertView.findViewById(R.id.expandableListView_group);
         groupTextView.setText(headerTitle);
         return convertView;
     }
 
     @Override
-    public View getChildView(int groupPosition, int childPosition, boolean isLastChild, View convertView, ViewGroup parent) {
+    public View getChildView(final int groupPosition, int childPosition, boolean isLastChild, View convertView, ViewGroup parent) {
         String childText = getChild(groupPosition, childPosition);
-        if (convertView == null) {
-            LayoutInflater layoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            assert layoutInflater != null;
-            convertView = layoutInflater.inflate(R.layout.list_item, null);
-        }
-
-
-        TextView itemTextView = convertView.findViewById(R.id.expandableListView_Item);
-        if (childText.contains(HTTP)) {
-            itemTextView.setMovementMethod(LinkMovementMethod.getInstance());
+        TextView itemTextView;
+        LayoutInflater layoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        assert layoutInflater != null;
+        if (getGroup(groupPosition).equals(LINKS_TITLE)){
+            convertView = layoutInflater.inflate(R.layout.list_item_link, null);
+            itemTextView = convertView.findViewById(R.id.expandableListView_item_link);
             String[] urlAndTitle = childText.split(SEPARATOR);
-            itemTextView.setText(Html.fromHtml(String.format(LINK_TEMPLATE, urlAndTitle[1], urlAndTitle[0])));
+            String title = urlAndTitle[0];
+            final String url = urlAndTitle[1];
+            itemTextView.setText(Html.fromHtml(String.format(LINK_TEMPLATE, url, title)));
             itemTextView.setLinkTextColor(Color.BLACK);
-            itemTextView.setLinksClickable(true);
-
+            itemTextView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    onClickListener.onItemClickListener(url);
+                }
+            });
         } else {
+            convertView = layoutInflater.inflate(R.layout.list_item, null);
+            itemTextView = convertView.findViewById(R.id.expandableListView_item);
             itemTextView.setText(childText);
         }
         return convertView;
@@ -130,5 +132,9 @@ public class MarvelExpandableListAdapter extends BaseExpandableListAdapter {
     @Override
     public boolean isChildSelectable(int groupPosition, int childPosition) {
         return true;
+    }
+
+    public interface OnItemClickListener{
+        void onItemClickListener(String url);
     }
 }
